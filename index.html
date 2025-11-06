@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kalkulator Sederhana</title>
+  <style>
+    body {
+      background: url("m1.jpg") no-repeat center center fixed;
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      transition: background 1s ease-in-out;
+    }
+
+    .music-box {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      width: 160px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    }
+
+    .calculator {
+      width: 300px;
+      margin: 80px auto;
+      border: 20px solid #ff7b00;
+      border-radius: 20px;
+      padding: 20px;
+      background: rgba(0, 247, 255, 0.85);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    }
+
+    #display {
+      width: 100%;
+      height: 50px;
+      margin-bottom: 15px;
+      text-align: right;
+      font-size: 23px;
+      border-radius: 10px;
+      border: none;
+      padding: 5px 8px;
+      background: #fff;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #ff9100;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #ddd;
+    }
+
+    /* Tombol operator lebih besar */
+    .operator {
+      font-size: 24px;
+      font-weight: bold;
+      background: #ff6b00;
+    }
+
+    .clear {
+      grid-column: span 4;
+      background: #ff4444;
+      color: rgb(255, 255, 255);
+      font-weight: bold;
+    }
+
+    .convert {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .convert button {
+      flex: 1;
+    }
+
+    .history {
+      margin-top: 10px;
+      background: #fff;
+      padding: 5px;
+      border-radius: 10px;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    .history h3 {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .history ul {
+      padding-left: 20px;
+      margin: 5px 0 0 0;
+      font-size: 14px;
+    }
+
+    .sound-toggle {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+      font-size: 20px;
+    }
+
+    .sound-toggle.muted {
+      background: rgba(255, 0, 0, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <!-- Kolom Musik -->
+  <div class="music-box">
+    <h3>Musik</h3>
+    <audio id="bgMusic" controls>
+      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+      Browser tidak mendukung audio.
+    </audio>
+    <div style="margin-top: 10px;">
+      <button onclick="changeTrack(1)" style="padding: 5px 10px; font-size: 12px;">Lagu 1</button>
+      <button onclick="changeTrack(2)" style="padding: 5px 10px; font-size: 12px;">Lagu 2</button>
+      <button onclick="changeTrack(3)" style="padding: 5px 10px; font-size: 12px;">Lagu 3</button>
+    </div>
+  </div>
+
+  <!-- Kalkulator -->
+  <div class="calculator">
+    <input type="text" id="display" disabled>
+    <div class="buttons">
+      <button onclick="appendNumber('7')" onmousedown="playButtonSound('7')">7<br>Seven</button>
+      <button onclick="appendNumber('8')" onmousedown="playButtonSound('8')">8<br>Eight</button>
+      <button onclick="appendNumber('9')" onmousedown="playButtonSound('9')">9<br>Nine</button>
+      <button onclick="appendOperator('/')" onmousedown="playButtonSound('bagi')" class="operator">/</button>
+      
+      <button onclick="appendNumber('4')" onmousedown="playButtonSound('4')">4<br>Four</button>
+      <button onclick="appendNumber('5')" onmousedown="playButtonSound('5')">5<br>Five</button>
+      <button onclick="appendNumber('6')" onmousedown="playButtonSound('6')">6<br>Six</button>
+      <button onclick="appendOperator('x')" onmousedown="playButtonSound('kali')" class="operator">×</button>
+      
+      <button onclick="appendNumber('1')" onmousedown="playButtonSound('1')">1<br>One</button>
+      <button onclick="appendNumber('2')" onmousedown="playButtonSound('2')">2<br>Two</button>
+      <button onclick="appendNumber('3')" onmousedown="playButtonSound('3')">3<br>Three</button>
+      <button onclick="appendOperator('-')" onmousedown="playButtonSound('kurang')" class="operator">-</button>
+      
+      <button onclick="appendNumber('0')" onmousedown="playButtonSound('0')">0<br>Zero</button>
+      <button onclick="appendNumber('.')" onmousedown="playButtonSound('titik')">.</button>
+      <button onclick="appendOperator('+')" onmousedown="playButtonSound('tambah')" class="operator">+</button>
+      <button onclick="calculate()" onmousedown="playButtonSound('sama dengan')" class="operator">=</button>
+    </div>
+    <button class="clear" onclick="clearDisplay()" onmousedown="playButtonSound('clear')">Clear</button>
+
+    <div class="convert">
+      <button onclick="convertToUSD()" onmousedown="playButtonSound('convert')">Konversi ke USD</button>
+      <button onclick="convertToIDR()" onmousedown="playButtonSound('convert')">Konversi ke IDR</button>
+    </div>
+
+    <div class="history">
+      <h3>Riwayat:</h3>
+      <ul id="historyList"></ul>
+    </div>
+  </div>
+
+  <!-- Tombol Toggle Suara -->
+  <button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+
+  <script>
+    // === Background otomatis ===
+    let images = [
+      "m1.jpg",
+      "m2.jpg",
+      "m3.jpg"
+    ];
+    let index = 0;
+    setInterval(() => {
+      document.body.style.background = `url(${images[index]}) no-repeat center center fixed`;
+      document.body.style.backgroundSize = "cover";
+      index = (index + 1) % images.length;
+    }, 2000);
+
+    // === Suara Tombol ===
+    let soundEnabled = true;
+    let indonesianVoice = null; // Variabel untuk menyimpan suara Indonesia
+    
+    // Mapping angka ke kata-kata dalam bahasa Indonesia dengan ejaan yang benar
+    const numberWords = {
+      '0': 'nol',
+      '1': 'satu',
+      '2': 'dua',
+      '3': 'tiga',
+      '4': 'empat',
+      '5': 'lima',
+      '6': 'enam',
+      '7': 'tujuh',
+      '8': 'delapan',  // Ejaan standar bahasa Indonesia
+      '9': 'sembilan',
+      'titik': 'titik',
+      'tambah': 'tambah',
+      'kurang': 'kurang',
+      'kali': 'kali',
+      'bagi': 'bagi',
+      'sama dengan': 'sama dengan',
+      'clear': 'hapus',
+      'convert': 'konversi'
+    };
+    
+    // Fungsi untuk memuat suara bahasa Indonesia dengan prioritas yang lebih baik
+    function loadIndonesianVoice() {
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Prioritas 1: Cari suara Google Indonesia (biasanya lebih natural)
+      indonesianVoice = voices.find(voice => 
+        voice.name.includes('Google') && voice.lang.startsWith('id-')
+      );
+      
+      // Prioritas 2: Cari suara Indonesia dengan layanan lokal
+      if (!indonesianVoice) {
+        indonesianVoice = voices.find(voice => 
+          voice.lang.startsWith('id-') && voice.localService
+        );
+      }
+      
+      // Prioritas 3: Cari suara apa pun yang mendukung bahasa Indonesia
+      if (!indonesianVoice) {
+        indonesianVoice = voices.find(voice => 
+          voice.lang.startsWith('id-')
+        );
+      }
+      
+      // Prioritas 4: Gunakan suara default dengan pengaturan bahasa Indonesia
+      if (!indonesianVoice) {
+        console.warn('Suara bahasa Indonesia tidak ditemukan. Menggunakan pengaturan bahasa default.');
+      }
+    }
+    
+    // Panggil fungsi saat halaman dimuat
+    window.speechSynthesis.onvoiceschanged = loadIndonesianVoice;
+    loadIndonesianVoice(); // Panggil langsung untuk browser yang sudah siap
+    
+    function playButtonSound(buttonType) {
+      if (!soundEnabled) return;
+      
+      // Batalkan ucapan yang sedang berlangsung
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Buat objek ucapan
+      const utterance = new SpeechSynthesisUtterance(numberWords[buttonType]);
+      
+      // Atur pengaturan bahasa untuk pengucapan Indonesia yang natural
+      utterance.lang = 'id-ID';
+      utterance.rate = 0.8; // Kecepatan sedikit lebih lambat untuk kejelasan
+      utterance.pitch = 1.0; // Nada normal
+      utterance.volume = 1.0;
+      
+      // Pengaturan khusus untuk kata-kata tertentu
+      if (buttonType === '8') {
+        utterance.rate = 0.7; // Lebih lambat untuk "delapan"
+        utterance.pitch = 0.9; // Nada sedikit lebih rendah
+      }
+      
+      // Gunakan suara Indonesia jika tersedia
+      if (indonesianVoice) {
+        utterance.voice = indonesianVoice;
+      }
+      
+      // Atur pengaturan tambahan untuk memastikan pengucapan Indonesia
+      utterance.onstart = () => {
+        // Pastikan tidak ada pengaturan bahasa Inggris yang terbawa
+        utterance.lang = 'id-ID';
+      };
+      
+      // Ucapkan teks
+      window.speechSynthesis.speak(utterance);
+    }
+    
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const soundToggle = document.getElementById('soundToggle');
+      soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+      soundToggle.classList.toggle('muted', !soundEnabled);
+    }
+
+    // === Sistem Musik ===
+    const tracks = [
+      
+    ];
+    
+    let currentTrack = 0;
+    const bgMusic = document.getElementById('bgMusic');
+    
+    function changeTrack(trackNumber) {
+      if (trackNumber >= 1 && trackNumber <= 3) {
+        currentTrack = trackNumber - 1;
+        bgMusic.src = tracks[currentTrack];
+        bgMusic.play().catch(e => console.log('Autoplay prevented:', e));
+      }
+    }
+    
+    // Auto play next track when current track ends
+    bgMusic.addEventListener('ended', function() {
+      currentTrack = (currentTrack + 1) % tracks.length;
+      bgMusic.src = tracks[currentTrack];
+      bgMusic.play().catch(e => console.log('Autoplay prevented:', e));
+    });
+
+    // === Konversi Angka ke Kata-kata dengan ejaan yang benar ===
+    function numberToWords(num) {
+      if (num === 0) return "nol";
+      
+      const satuan = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan"];
+      const belasan = ["sepuluh", "sebelas", "dua belas", "tiga belas", "empat belas", "lima belas", "enam belas", "tujuh belas", "delapan belas", "sembilan belas"];
+      const puluhan = ["", "sepuluh", "dua puluh", "tiga puluh", "empat puluh", "lima puluh", "enam puluh", "tujuh puluh", "delapan puluh", "sembilan puluh"];
+      const ribuan = ["", "ribu", "juta", "miliar", "triliun"];
+      
+      let words = "";
+      let numStr = num.toString();
+      let length = numStr.length;
+      
+      // Proses setiap 3 digit dari kanan
+      for (let i = 0; i < length; i++) {
+        let pos = length - i - 1;
+        let digit = parseInt(numStr[i]);
+        let group = Math.floor(pos / 3);
+        
+        if (digit === 0) continue;
+        
+        if (pos % 3 === 0) { // Satuan
+          if (group === 1 && digit === 1 && i === length - 3) {
+            words += "seribu ";
+          } else {
+            words += satuan[digit] + " ";
+          }
+        } else if (pos % 3 === 1) { // Puluhan
+          if (digit === 1) {
+            let nextDigit = parseInt(numStr[i + 1]);
+            words += belasan[nextDigit] + " ";
+            i++; // Skip next digit
+          } else {
+            words += puluhan[digit] + " ";
+          }
+        } else if (pos % 3 === 2) { // Ratusan
+          if (digit === 1) {
+            words += "seratus ";
+          } else {
+            words += satuan[digit] + " ratus ";
+          }
+        }
+        
+        // Tambahkan satuan ribuan/jutaan/dst
+        if (pos % 3 === 0 && group > 0) {
+          words += ribuan[group] + " ";
+        }
+      }
+      
+      return words.trim();
+    }
+    
+    function speakResult(result) {
+      if (!soundEnabled) return;
+      
+      // Batalkan ucapan yang sedang berlangsung
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Konversi hasil ke kata-kata
+      let resultWords;
+      if (Number.isInteger(result)) {
+        resultWords = numberToWords(result);
+      } else {
+        // Untuk desimal, pisahkan bagian bulat dan desimal
+        let parts = result.toString().split('.');
+        let integerPart = parseInt(parts[0]);
+        let decimalPart = parts[1] || "";
+        
+        resultWords = numberToWords(integerPart);
+        if (decimalPart) {
+          resultWords += " koma ";
+          for (let i = 0; i < decimalPart.length; i++) {
+            resultWords += satuan[parseInt(decimalPart[i])] + " ";
+          }
+        }
+      }
+      
+      // Buat objek ucapan dengan pengaturan khusus untuk kejelasan
+      const utterance = new SpeechSynthesisUtterance("Hasilnya " + resultWords);
+      
+      // Atur pengaturan bahasa untuk pengucapan Indonesia yang natural
+      utterance.lang = 'id-ID';
+      utterance.rate = 0.7; // Lebih lambat untuk kejelasan
+      utterance.pitch = 0.95; // Nada sedikit lebih rendah untuk suara Indonesia yang lebih natural
+      utterance.volume = 1.0;
+      
+      // Gunakan suara Indonesia jika tersedia
+      if (indonesianVoice) {
+        utterance.voice = indonesianVoice;
+      }
+      
+      // Atur pengaturan tambahan untuk memastikan pengucapan Indonesia
+      utterance.onstart = () => {
+        utterance.lang = 'id-ID';
+      };
+      
+      // Ucapkan teks
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // === Kalkulator ===
+    let display = document.getElementById("display");
+    let historyList = document.getElementById("historyList");
+    let rawValue = "";
+
+    function formatNumber(num) {
+      if (num === "" || isNaN(num)) return "";
+      return Number(num).toLocaleString("id-ID");
+    }
+
+    function formatExpression(expr) {
+      return expr.replace(/(\d+)(?=\D|$)/g, match => formatNumber(match));
+    }
+
+    function appendNumber(num) {
+      rawValue += num;
+      display.value = formatExpression(rawValue);
+    }
+
+    function appendOperator(op) {
+      if (rawValue === "") return;
+      rawValue += op;
+      display.value = formatExpression(rawValue);
+    }
+
+    function clearDisplay() {
+      rawValue = "";
+      display.value = "";
+    }
+
+    function calculate() {
+      try {
+        let result = eval(rawValue.replace(/x/g, "*"));
+        addHistory(formatExpression(rawValue) + " = " + formatNumber(result));
+        rawValue = result.toString();
+        display.value = formatNumber(result);
+        
+        // Sebutkan hasilnya
+        speakResult(result);
+      } catch {
+        display.value = "Error Bang :v";
+        rawValue = "";
+        
+        // Sebutkan pesan error
+        if (soundEnabled) {
+          const utterance = new SpeechSynthesisUtterance("Terjadi kesalahan dalam perhitungan");
+          utterance.lang = 'id-ID';
+          utterance.rate = 0.8;
+          utterance.pitch = 0.95;
+          if (indonesianVoice) {
+            utterance.voice = indonesianVoice;
+          }
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+    }
+
+    function convertToUSD() {
+      let val = parseFloat(rawValue.replace(/\./g, ""));
+      if (!isNaN(val)) {
+        let result = (val / 15000).toFixed(2);
+        addHistory(formatNumber(val) + " IDR = " + result + " USD");
+        rawValue = "";
+        display.value = result + " USD";
+        
+        // Sebutkan hasil konversi
+        if (soundEnabled) {
+          const utterance = new SpeechSynthesisUtterance("Hasil konversi adalah " + result + " dolar Amerika");
+          utterance.lang = 'id-ID';
+          utterance.rate = 0.75;
+          utterance.pitch = 0.95;
+          if (indonesianVoice) {
+            utterance.voice = indonesianVoice;
+          }
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+    }
+
+    function convertToIDR() {
+      let val = parseFloat(rawValue.replace(/\./g, ""));
+      if (!isNaN(val)) {
+        let result = (val * 15000).toLocaleString("id-ID");
+        addHistory(val + " USD = " + result + " IDR");
+        rawValue = "";
+        display.value = result + " IDR";
+        
+        // Sebutkan hasil konversi
+        if (soundEnabled) {
+          const utterance = new SpeechSynthesisUtterance("Hasil konversi adalah " + numberToWords(val * 15000) + " rupiah");
+          utterance.lang = 'id-ID';
+          utterance.rate = 0.7; // Lebih lambat untuk kejelasan
+          utterance.pitch = 0.95;
+          if (indonesianVoice) {
+            utterance.voice = indonesianVoice;
+          }
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+    }
+
+    function addHistory(text) {
+      let li = document.createElement("li");
+      li.textContent = text;
+      historyList.appendChild(li);
+      
+      // Keep only last 10 items
+      while (historyList.children.length > 10) {
+        historyList.removeChild(historyList.firstChild);
+      }
+    }
+  </script>
+</body>
+</html>
